@@ -9,7 +9,8 @@ const LoginForm = ({
    setPassword, 
    setUser, 
    setMessage, 
-   setMessageClass 
+   setMessageClass,
+   showLogin
   }) => {
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -30,10 +31,14 @@ const LoginForm = ({
       setTimeout(() => {
         setMessage(null)
       },  5000)
-
+      setUserName('')
+      setPassword('')
     }
   }
-
+  if (showLogin === false) {
+    return null
+  }
+  
   return (
     <form onSubmit={handleLogin}>
       <h2>Log in</h2>

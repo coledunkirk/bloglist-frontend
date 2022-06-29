@@ -5,6 +5,8 @@ import LoginForm from './components/LoginForm'
 import BlogForm from './components/BlogForm'
 import Notification from './components/Notification'
 import Toggle from './components/Toggle'
+import UserForm from './components/UserForm'
+import ToggleLogin from './components/ToggleLogin'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -14,6 +16,7 @@ const App = () => {
   const [message, setMessage] = useState(null)
   const [messageClass, setMessageClass] = useState('added')
   const [sortLikes, setSortLikes] = useState(false)
+  const [showLogin, setShowLogin] = useState(true)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -31,6 +34,7 @@ const App = () => {
   }, [])
 
   const blogFormRef = useRef()
+  const loginRef = useRef()
 
   const handleLogout = () => {
     window.localStorage.clear()
@@ -88,18 +92,34 @@ const App = () => {
           message={message}
           messageClass={messageClass}
         />
-        <Toggle buttonLabelWhenHidden='Login' buttonLabelWhenShown='cancel'>
-          <LoginForm 
-            userName={userName}
-            password={password}
-            user={user}
-            setUserName={setUserName}
-            setPassword={setPassword}
-            setUser={setUser}
-            setMessage={setMessage}
-            setMessageClass={setMessageClass}
+        <LoginForm 
+          userName={userName}
+          password={password}
+          user={user}
+          setUserName={setUserName}
+          setPassword={setPassword}
+          setUser={setUser}
+          setMessage={setMessage}
+          setMessageClass={setMessageClass}
+          showLogin={showLogin}
+        />
+        <ToggleLogin buttonLabelWhenHidden='New User'
+           buttonLabelWhenShown='cancel' 
+           showLogin={showLogin}
+           setShowLogin={setShowLogin}
+           ref={loginRef}
+          >
+          <UserForm
+             userName={userName}
+             password={password}
+             user={user}
+             setUserName={setUserName}
+             setPassword={setPassword}
+             setMessage={setMessage}
+             setMessageClass={setMessageClass}
+             loginRef={loginRef}
           />
-        </Toggle>
+        </ToggleLogin>
       </div>
     )
   }
@@ -141,10 +161,5 @@ const App = () => {
     </div>
   )
 }
-//add button to each displayed blog
-//add togglable functionality to the button
-//each blog field gets own line
-//add css 
-
 
 export default App
