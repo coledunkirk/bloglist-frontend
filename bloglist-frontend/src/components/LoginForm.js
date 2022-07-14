@@ -1,6 +1,7 @@
 import React from 'react'
 import loginService from '../services/login'
 import blogService from '../services/blogs'
+import { TextField, Button } from '@mui/material'
 
 const LoginForm = ({ 
    userName,
@@ -40,29 +41,31 @@ const LoginForm = ({
   }
   
   return (
-    <form onSubmit={handleLogin}>
-      <h2>Log in</h2>
+    <form onSubmit={handleLogin} className="form">
+      <h2 className="login-secondary-text">Login</h2>
       <div>
-        username:
-          <input
+        <TextField
           id="username"
           type="text"
           value={userName}
+          label="Username"
           name="Username"
           onChange={({ target }) => setUserName(target.value)}
+          margin="normal"
         />
       </div>
       <div>
-        password:
-          <input
+        <TextField
           id="password"
           type="password"
           value={password}
+          label="Password"
           name="Password"
           onChange={({ target }) => setPassword(target.value)}
+          margin="normal"
         />
       </div>
-      <button type="submit" id="login-button">login</button>
+      <Button color="primary" type="submit" id="login-button">login</Button>
     </form>  
   )  
 }

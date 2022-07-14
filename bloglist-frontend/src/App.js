@@ -7,6 +7,7 @@ import Notification from './components/Notification'
 import Toggle from './components/Toggle'
 import UserForm from './components/UserForm'
 import ToggleLogin from './components/ToggleLogin'
+import { Button, ButtonGroup, Container, TableContainer, Paper, Table, TableBody } from '@mui/material'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -87,77 +88,91 @@ const App = () => {
   if (user === null) {
     return (
       <div>
-        <h1>Blogs</h1>
-        <Notification 
-          message={message}
-          messageClass={messageClass}
-        />
-        <LoginForm 
-          userName={userName}
-          password={password}
-          user={user}
-          setUserName={setUserName}
-          setPassword={setPassword}
-          setUser={setUser}
-          setMessage={setMessage}
-          setMessageClass={setMessageClass}
-          showLogin={showLogin}
-        />
-        <ToggleLogin buttonLabelWhenHidden='New User'
-           buttonLabelWhenShown='cancel' 
-           showLogin={showLogin}
-           setShowLogin={setShowLogin}
-           ref={loginRef}
+        <div className="main">
+          <h1 className="main-text">Blogs</h1>
+        </div>
+          <Notification 
+            message={message}
+            messageClass={messageClass}
+          />
+          <LoginForm 
+            userName={userName}
+            password={password}
+            user={user}
+            setUserName={setUserName}
+            setPassword={setPassword}
+            setUser={setUser}
+            setMessage={setMessage}
+            setMessageClass={setMessageClass}
+            showLogin={showLogin}
+          />
+          <ToggleLogin 
+            buttonLabelWhenHidden='New User'
+            buttonLabelWhenShown='cancel' 
+            showLogin={showLogin}
+            setShowLogin={setShowLogin}
+            ref={loginRef}
           >
           <UserForm
-             userName={userName}
-             password={password}
-             user={user}
-             setUserName={setUserName}
-             setPassword={setPassword}
-             setMessage={setMessage}
-             setMessageClass={setMessageClass}
-             loginRef={loginRef}
+            userName={userName}
+            password={password}
+            user={user}
+            setUserName={setUserName}
+            setPassword={setPassword}
+            setMessage={setMessage}
+            setMessageClass={setMessageClass}
+            loginRef={loginRef}
           />
-        </ToggleLogin>
-      </div>
-    )
+          </ToggleLogin>
+        </div>
+      )
   }
 
   return (
     <div>
-      <h1>Blogs</h1>
-      <h2>
-        {user.userName} is logged in<button onClick={handleLogout}>logout</button>
-      </h2>
+      <div className="main">
+        <h1 className="main-text">Blogs</h1>
+      </div>
       <Notification 
         message={message}
         messageClass={messageClass}
       />
-      <Toggle 
-        buttonLabelWhenHidden='Add new blog' 
-        buttonLabelWhenShown='cancel'
-        ref={blogFormRef}
-      >
-        <BlogForm
-          setMessage={setMessage}
-          setMessageClass={setMessageClass}
-          addBlog={addBlog}
-        />
-      </Toggle>
-      <div>sort by: 
-        <button onClick={() => setSortLikes(false)}>age</button>
-        <button onClick={() => setSortLikes(true)}>likes</button>
-      </div>
-      {blogsToShow.map(blog =>
-        <Blog 
-          key={blog.id} 
-          blog={blog} 
-          user={user}
-          likeBlog={likeBlog}
-          deleteBlog={deleteBlog}
-        />
-      )}
+      <Container>
+        <h2>
+          {user.userName} is logged in<Button onClick={handleLogout} color="error">logout</Button>
+        </h2>
+        <Toggle 
+          buttonLabelWhenHidden='Add new blog' 
+          buttonLabelWhenShown='cancel'
+          ref={blogFormRef}
+        >
+          <BlogForm
+            setMessage={setMessage}
+            setMessageClass={setMessageClass}
+            addBlog={addBlog}
+          />
+        </Toggle>
+        <h3>Sort by:</h3>
+        <ButtonGroup variant="outlined">
+          <Button onClick={() => setSortLikes(false)}>age</Button>
+          <Button onClick={() => setSortLikes(true)}>likes</Button>
+        </ButtonGroup>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableBody>
+              {blogsToShow.map(blog =>
+                <Blog 
+                  key={blog.id} 
+                  blog={blog} 
+                  user={user}
+                  likeBlog={likeBlog}
+                  deleteBlog={deleteBlog}
+                />
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Container>
     </div>
   )
 }

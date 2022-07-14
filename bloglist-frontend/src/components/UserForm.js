@@ -1,4 +1,5 @@
 import userService from '../services/users'
+import { TextField, Button } from '@mui/material'
 
 const UserForm = ({
   userName,
@@ -32,29 +33,33 @@ const UserForm = ({
     }
   }
   return( 
-    <form onSubmit={handleNewUser}>
-      <h2>Create New User</h2>
+    <form onSubmit={handleNewUser} className="form">
+      <h2 className="login-secondary-text">Create New User</h2>
       <div>
-        username:
-          <input
+          <TextField
           id="create-username"
           type="text"
           value={userName}
           name="CreateUsername"
+          label="New Username"
           onChange={({ target }) => setUserName(target.value)}
+          margin="normal"
         />
       </div>
       <div>
-        password:
-          <input
+          <TextField
           id="create-password"
           type="password"
           value={password}
+          label="New Password"
           name="CreatePassword"
           onChange={({ target }) => setPassword(target.value)}
+          margin="normal"
         />
       </div>
-      <button type="submit" id="user-button">sign up</button>
+      <div>
+        <Button type="submit" id="user-button">sign up</Button>
+      </div>
     </form>
   )
 }

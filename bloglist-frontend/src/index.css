@@ -1,3 +1,30 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+.main {
+  background: #1f2937;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.main-text {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #f9faf8;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.login-secondary-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1f2937;
+}
 .added {
   color: green;
   background: lightgrey;

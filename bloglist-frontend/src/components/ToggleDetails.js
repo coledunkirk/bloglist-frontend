@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { TableCell, Button } from '@mui/material'
 
 const ToggleDetails = ({ buttonLabelWhenHidden, buttonLabelWhenShown, children, blog }) => {
   const [visible, setVisible] = useState(false)
@@ -11,17 +12,15 @@ const ToggleDetails = ({ buttonLabelWhenHidden, buttonLabelWhenShown, children, 
   }
 
   return (
-    <div>
-      <div style={hide} data-testid='hidden' className="hidden">
-        {blog.title} {blog.author} 
-        <button onClick={toggleVisibility}>{buttonLabelWhenHidden}</button>
-      </div>
-      <div style={show} data-testid='shown' className="shown">
-        {blog.title} {blog.author} 
-        <button onClick={toggleVisibility}>{buttonLabelWhenShown}</button>
+    <>
+      <TableCell style={hide} data-testid='hidden' className="hidden">
+        <Button variant="contained" color="info" onClick={toggleVisibility}>{buttonLabelWhenHidden}</Button>
+      </TableCell>
+      <TableCell style={show} data-testid='shown' className="shown">
+        <Button variant="contained" color="info"onClick={toggleVisibility}>{buttonLabelWhenShown}</Button>
         {children}
-      </div>
-    </div>
+      </TableCell>
+    </>
   )
 }
 

@@ -1,12 +1,9 @@
 import ToggleDetails from './ToggleDetails'
+import { TableRow, TableCell, Button } from '@mui/material'
 
 const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
   const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+    marginTop: 10
   }
 
   const getUserName = !blog.user
@@ -32,7 +29,7 @@ const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
     if (!blog.user) return null
     if (blog.user.userName === user.userName) {
       return (
-        <button onClick={handleDelete}>delete</button>
+        <Button style={blogStyle} variant="contained" onClick={handleDelete} color="error">delete</Button>
       )
     } else {
       return null
@@ -40,17 +37,19 @@ const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
   }
 
   return (
-    <div style={blogStyle} className="blog">
+    <TableRow className="blog"> 
+      <TableCell>{blog.title}</TableCell>
+      <TableCell>{blog.author}</TableCell>
       <ToggleDetails 
         blog={blog} 
         buttonLabelWhenHidden='show details' 
         buttonLabelWhenShown='hide details'
       >
-        <div>
+        <div style={blogStyle}>
           <div>{blog.url}</div>
           <div id="blog-likes">
             {blog.likes} 
-            <button id="like-button" onClick={handleLike}>like</button>
+            <Button color="success" id="like-button" onClick={handleLike}>like</Button>
           </div>
           <div>
             {getUserName}
@@ -58,7 +57,7 @@ const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
           {showDeleteButton()}
         </div>
       </ToggleDetails>
-    </div>  
+    </TableRow>  
   )
 }
 
