@@ -1,4 +1,6 @@
 import userService from '../services/users'
+import { useDispatch } from 'react-redux'
+import { setNotification, setMessageClass } from '../reducers/notificationReducer'
 import { TextField, Button } from '@mui/material'
 
 const UserForm = ({
@@ -6,30 +8,26 @@ const UserForm = ({
   password,
   setUserName, 
   setPassword,  
-  setMessage, 
-  setMessageClass,
-  loginRef
+  loginRef,
+  users,
+  setUsers
 }) => {
+  const dispatch = useDispatch()
   const handleNewUser = async (e) => {
     e.preventDefault()
     try {
-      await userService.createUser({
+      const newUser = await userService.createUser({
         userName, password
       })
-      setMessage(`New user ${userName} added. Please Login`)
-      setMessageClass('added')
-      setTimeout(() => {
-        setMessage(null)
-      },  5000)
+      dispatch(setMessageClass('added'))
+      dispatch(setNotification(`New user ${userName} added. Please Login`, 5))
+      setUsers(users.concat(newUser))
       setUserName('')
       setPassword('')
       loginRef.current.toggleVisibility()
     } catch (error) {
-      setMessageClass('error')
-      setMessage(error.response.data.error)
-      setTimeout(() => {
-        setMessage(null)
-      },  5000)
+      dispatch(setMessageClass('error'))
+      dispatch(setNotification(error.response.data.error, 5))
     }
   }
   return( 

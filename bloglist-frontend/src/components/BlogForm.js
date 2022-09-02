@@ -1,14 +1,15 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { setNotification, setMessageClass } from '../reducers/notificationReducer'
 import { TextField, Button } from '@mui/material'
 
 const BlogForm = ({
-   setMessage, 
-   setMessageClass,
    addBlog
   }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const dispatch = useDispatch()
 
   const handleNewBlog = (blogObject) => {
     addBlog(blogObject)
@@ -18,11 +19,8 @@ const BlogForm = ({
   }
 
   const handleMissingInput = () => {
-    setMessageClass('error')
-    setMessage('Title and URL are required fields')
-    setTimeout(() => {
-      setMessage(null)
-    }, 5000)
+    dispatch(setMessageClass('error'))
+    dispatch(setNotification('Title and URL are required fields', 5))
   }
 
   const handleSubmit = (event) => {

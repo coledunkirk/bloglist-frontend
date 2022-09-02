@@ -7,4 +7,9 @@ const createUser = async (credentials) => {
   return response.data
 }
 
-export default { createUser }
+const getAll = () => {
+  const request = axios.get(baseUrl)
+  return request.then(response => response.data)
+}
+
+export default { createUser, getAll }

@@ -1,18 +1,19 @@
 import React from 'react'
 import loginService from '../services/login'
 import blogService from '../services/blogs'
+import { setUser } from '../reducers/userReducer'
+import { setNotification, setMessageClass } from '../reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
 import { TextField, Button } from '@mui/material'
 
 const LoginForm = ({ 
    userName,
    password,
    setUserName, 
-   setPassword, 
-   setUser, 
-   setMessage, 
-   setMessageClass,
+   setPassword,  
    showLogin
-  }) => {
+}) => {
+  const dispatch = useDispatch()
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -22,16 +23,12 @@ const LoginForm = ({
       window.localStorage.setItem(
         'loggedInUser', JSON.stringify(user)
       ) 
-      blogService.setToken(user.token)
-      setUser(user)
+      dispatch(setUser(user))
       setUserName('')
       setPassword('')
     } catch (exception) {
-      setMessageClass('error')
-      setMessage('Invalid Username or Password')
-      setTimeout(() => {
-        setMessage(null)
-      },  5000)
+      dispatch(setMessageClass('error'))
+      dispatch(setNotification('Invalid Username or Password', 5))
       setUserName('')
       setPassword('')
     }

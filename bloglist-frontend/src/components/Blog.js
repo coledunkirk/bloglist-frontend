@@ -1,5 +1,6 @@
 import ToggleDetails from './ToggleDetails'
 import { TableRow, TableCell, Button } from '@mui/material'
+import { Link } from "react-router-dom"
 
 const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
   const blogStyle = {
@@ -38,7 +39,17 @@ const Blog = ({ blog, user, likeBlog, deleteBlog }) => {
 
   return (
     <TableRow className="blog"> 
-      <TableCell>{blog.title}</TableCell>
+      <TableCell>
+        <Button color="inherit" 
+          size="small" 
+          fullwidth="true" 
+          style={{padding: 0, minWidth: 0, textTransform: 'none'}}
+          component={Link} 
+          to={`/blogs/${blog.id}`}
+        >
+          {blog.title}
+        </Button>
+      </TableCell>
       <TableCell>{blog.author}</TableCell>
       <ToggleDetails 
         blog={blog} 

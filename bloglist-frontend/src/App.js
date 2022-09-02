@@ -1,27 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react'
-import Blog from './components/Blog'
+import { useDispatch, useSelector } from 'react-redux'
 import blogService from './services/blogs'
+import userService from './services/users'
 import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
+import BlogPage from './components/BlogPage'
 import Notification from './components/Notification'
-import Toggle from './components/Toggle'
 import UserForm from './components/UserForm'
 import ToggleLogin from './components/ToggleLogin'
-import { Button, ButtonGroup, Container, TableContainer, Paper, Table, TableBody } from '@mui/material'
+import UserPage from './components/UserPage'
+import IndividualUser from './components/IndividualUser'
+import IndividualBlog from './components/IndividualBlog'
+import { setNotification, setMessageClass } from './reducers/notificationReducer'
+import { newBlog, incrementLikes, setBlogs, removeBlog, setSelected, incrementComments } from './reducers/blogReducer'
+import { setUser, logoutUser } from './reducers/userReducer'
+import { Button, Container, AppBar, Toolbar, Box, Typography } from '@mui/material'
+import { Routes, Route, useMatch, Link, useNavigate } from 'react-router-dom'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [userName, setUserName] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
-  const [message, setMessage] = useState(null)
-  const [messageClass, setMessageClass] = useState('added')
-  const [sortLikes, setSortLikes] = useState(false)
   const [showLogin, setShowLogin] = useState(true)
+  const [users, setUsers] = useState([])
+
+  const dispatch = useDispatch()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      dispatch(setBlogs( blogs ))
     )  
   }, [])
 
@@ -29,81 +34,92 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem('loggedInUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
+      dispatch(setUser(user))
     }
   }, [])
 
+  useEffect(() => {
+    userService.getAll().then(users =>
+      setUsers(users)
+    )  
+  }, [])
+
+  const user = useSelector(({ user }) => user)
+
   const blogFormRef = useRef()
   const loginRef = useRef()
+  const userMatch = useMatch('/users/:id')
+  const navigate = useNavigate()
+
+  const selectedUser = userMatch 
+  ? users.find(u => u.id === userMatch.params.id)
+  : null
 
   const handleLogout = () => {
     window.localStorage.clear()
-    setUser(null)
+    dispatch(logoutUser())
     setUserName('')
     setPassword('')
   }
 
   const likeBlog = async (id, blogObject) => {
-    const updatedBlog = await blogService.update(id, blogObject)
-    setBlogs(blogs.map(blog => blog.id !== id ? blog : updatedBlog))
+    const likedBlog = await blogService.update(id, blogObject)
+    dispatch(incrementLikes(likedBlog))
+    dispatch(setSelected(likedBlog))
   }
 
   const deleteBlog = async (blog) => {
     if (window.confirm(`Delete "${blog.title}"?`)) {
       const id = blog.id
       await blogService.deleteBlog(id)
-      setBlogs(blogs.filter(blog => blog.id !== id))
+      dispatch(removeBlog(id))
+      navigate('/')
     }
   }
 
   const addBlog = async (blogObject) => {
     try {
       blogFormRef.current.toggleVisibility()
-      const newBlog = await blogService.create(blogObject)
-      setBlogs(blogs.concat(newBlog))
-      setMessageClass('added')
-      setMessage(`"${blogObject.title}" was added`)
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+      const createdBlog = await blogService.create(blogObject)
+      dispatch(newBlog(createdBlog))
+      dispatch(setMessageClass('added'))
+      dispatch(setNotification(`"${blogObject.title}" was added`, 5))
     }
     catch (error) {
       console.log(error.response.data)
-      setMessageClass('error')
-      setMessage('Error- couldn\'t add new blog')
-      setTimeout(() => {
-        setMessage(null)
-      }, 5000)
+      dispatch(setMessageClass('error'))
+      dispatch(setNotification('Error- couldn\'t add new blog', 5))
     }
   }
 
-  const blogsToShow = sortLikes
-  ? (function sortBlogs() {
-    const blogCopy = [...blogs]
-    const sortedBlogList = blogCopy.sort((blog1, blog2) => blog2.likes - blog1.likes)
-    return sortedBlogList
-  })()
-  : blogs
+  const addComment = async (id, commentObject) => {
+    try {
+      const blogWithNewComment = await blogService.comment(id, commentObject)
+      console.log(blogWithNewComment)
+      dispatch(incrementComments(blogWithNewComment))
+      dispatch(setSelected(blogWithNewComment))
+      dispatch(setMessageClass('added'))
+      dispatch(setNotification('New comment added', 5))
+    }
+    catch (error) {
+      console.log(error.response.data)
+      dispatch(setMessageClass('error'))
+      dispatch(setNotification('Error- couldn\'t add new comment', 5))
+    }
+  }
+
   if (user === null) {
-    return (
+    return(
       <div>
         <div className="main">
           <h1 className="main-text">Blogs</h1>
         </div>
-          <Notification 
-            message={message}
-            messageClass={messageClass}
-          />
+          <Notification />
           <LoginForm 
             userName={userName}
             password={password}
-            user={user}
             setUserName={setUserName}
             setPassword={setPassword}
-            setUser={setUser}
-            setMessage={setMessage}
-            setMessageClass={setMessageClass}
             showLogin={showLogin}
           />
           <ToggleLogin 
@@ -116,12 +132,11 @@ const App = () => {
           <UserForm
             userName={userName}
             password={password}
-            user={user}
             setUserName={setUserName}
             setPassword={setPassword}
-            setMessage={setMessage}
-            setMessageClass={setMessageClass}
             loginRef={loginRef}
+            users={users}
+            setUsers={setUsers}
           />
           </ToggleLogin>
         </div>
@@ -130,48 +145,53 @@ const App = () => {
 
   return (
     <div>
-      <div className="main">
-        <h1 className="main-text">Blogs</h1>
-      </div>
-      <Notification 
-        message={message}
-        messageClass={messageClass}
-      />
-      <Container>
+      <Box sx={{ display: 'flex' }}>
+        <AppBar component="nav" sx={{background: '#1f2937'}}>
+          <Toolbar>
+            <Typography
+              variant="h6"
+              component="div"
+              sx={{ flexGrow: 1}}
+            >
+              Blogs
+            </Typography>
+            <Box>
+              <Button color="inherit" component={Link} to="/">
+                home
+              </Button>
+              <Button color="inherit" component={Link} to="/users">
+                users
+              </Button>  
+            </Box>
+          </Toolbar>
+        </AppBar>
+      </Box>
+      <Container sx={{pt: 10, pb: 10}}>
+        <Notification />
         <h2>
           {user.userName} is logged in<Button onClick={handleLogout} color="error">logout</Button>
         </h2>
-        <Toggle 
-          buttonLabelWhenHidden='Add new blog' 
-          buttonLabelWhenShown='cancel'
-          ref={blogFormRef}
-        >
-          <BlogForm
-            setMessage={setMessage}
-            setMessageClass={setMessageClass}
-            addBlog={addBlog}
+        <Routes>
+          <Route path="/" element={
+            <BlogPage 
+              blogFormRef={blogFormRef} 
+              addBlog={addBlog}
+              likeBlog={likeBlog}
+              deleteBlog={deleteBlog}
+              user={user}
+            />} 
           />
-        </Toggle>
-        <h3>Sort by:</h3>
-        <ButtonGroup variant="outlined">
-          <Button onClick={() => setSortLikes(false)}>age</Button>
-          <Button onClick={() => setSortLikes(true)}>likes</Button>
-        </ButtonGroup>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableBody>
-              {blogsToShow.map(blog =>
-                <Blog 
-                  key={blog.id} 
-                  blog={blog} 
-                  user={user}
-                  likeBlog={likeBlog}
-                  deleteBlog={deleteBlog}
-                />
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <Route path="/users" element={<UserPage users={users} />} />
+          <Route path="/users/:id" element={<IndividualUser selectedUser={selectedUser} />} />
+          <Route path="/blogs/:id" element={
+            <IndividualBlog 
+              likeBlog={likeBlog}
+              deleteBlog={deleteBlog}
+              addComment={addComment}
+              user={user}
+            />} 
+          />
+        </Routes>
       </Container>
     </div>
   )
