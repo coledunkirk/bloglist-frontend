@@ -73,6 +73,7 @@ const App = () => {
       const id = blog.id
       await blogService.deleteBlog(id)
       dispatch(removeBlog(id))
+      setUsers(users.map(u => u.id !== blog.user.id ? u : { ...u, blogs: u.blogs.filter(blog => blog.id !== id) }))
       navigate('/')
     }
   }
@@ -84,6 +85,7 @@ const App = () => {
       dispatch(newBlog(createdBlog))
       dispatch(setMessageClass('added'))
       dispatch(setNotification(`"${blogObject.title}" was added`, 5))
+      setUsers(users.map(u => u.id !== createdBlog.user.id ? u : { ...u, blogs: u.blogs.concat(createdBlog) }))
     }
     catch (error) {
       console.log(error.response.data)
